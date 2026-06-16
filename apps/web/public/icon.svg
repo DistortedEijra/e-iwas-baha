@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#1e40af"/>
+  <!-- Location pin body -->
+  <ellipse cx="256" cy="210" rx="90" ry="90" fill="white"/>
+  <path d="M256 290 L196 380 Q256 460 316 380 Z" fill="white"/>
+  <!-- Pin hole -->
+  <circle cx="256" cy="210" r="36" fill="#1e40af"/>
+  <!-- Wave overlay (flood motif) -->
+  <path d="M0 420 C64 395,128 445,192 420 C256 395,320 445,384 420 C416 407,448 425,512 420 L512 512 L0 512Z"
+        fill="white" opacity="0.18"/>
+  <path d="M0 460 C64 435,128 485,192 460 C256 435,320 485,384 460 C416 447,448 465,512 460 L512 512 L0 512Z"
+        fill="white" opacity="0.28"/>
+</svg>

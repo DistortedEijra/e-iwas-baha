@@ -1,0 +1,23 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: eiwas_db
+    environment:
+      POSTGRES_USER: eiwas
+      POSTGRES_PASSWORD: eiwas_pw
+      POSTGRES_DB: eiwas_baha
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./server/src/db/migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eiwas -d eiwas_baha"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:

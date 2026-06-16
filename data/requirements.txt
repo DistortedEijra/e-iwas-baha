@@ -1,0 +1,6 @@
+osmnx>=1.9
+psycopg2-binary>=2.9
+shapely>=2.0
+python-dotenv>=1.0
+geopandas>=0.14
+requests>=2.32

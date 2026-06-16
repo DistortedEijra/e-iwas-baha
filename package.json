@@ -1,0 +1,11 @@
+{
+  "name": "e-iwas-baha",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": ["apps/web", "server"],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:server": "npm run dev --workspace=server",
+    "build": "npm run build --workspace=apps/web && npm run build --workspace=server"
+  }
+}

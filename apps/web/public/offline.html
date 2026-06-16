@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Iwas Baha — Offline</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: #f3f4f6;
+        color: #374151;
+        text-align: center;
+        padding: 24px;
+        gap: 16px;
+      }
+      img { width: 72px; height: 72px; }
+      h1  { font-size: 22px; font-weight: 700; color: #1e40af; }
+      p   { font-size: 14px; color: #6b7280; line-height: 1.6; max-width: 340px; }
+      p.sub { font-size: 13px; color: #9ca3af; }
+      button {
+        margin-top: 8px;
+        padding: 10px 28px;
+        background: #1e40af;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:hover { background: #1d4ed8; }
+    </style>
+  </head>
+  <body>
+    <img src="/icon.svg" alt="E-Iwas Baha" />
+    <h1>You're Offline</h1>
+    <p>E-Iwas Baha needs a connection to calculate safe evacuation routes.</p>
+    <p class="sub">Your last known route is stored and will reload automatically when you're back online.</p>
+    <button onclick="location.reload()">Retry</button>
+  </body>
+</html>

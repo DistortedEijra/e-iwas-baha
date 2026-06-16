@@ -1,0 +1,28 @@
+# Node
+node_modules/
+dist/
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Postgres volume
+pgdata/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Capacitor native builds (generated)
+apps/mobile/android/
+apps/mobile/ios/
