@@ -10,6 +10,7 @@ import { reportsRouter } from './routes/reports.js';
 import { evacCentersRouter } from './routes/evac-centers.js';
 import { adminRouter } from './routes/admin.js';
 import { uatRouter } from './routes/uat.js';
+import { floodZonesRouter } from './routes/flood-zones.js';
 import { requireAdmin } from './middleware/adminAuth.js';
 
 const app = express();
@@ -31,6 +32,7 @@ app.get('/health', async (_req, res) => {
 // Public endpoints
 app.use('/api/evac-centers', evacCentersRouter(pool));
 app.use('/api/uat', uatRouter(pool));
+app.use('/api/flood-zones', floodZonesRouter(pool));
 
 io.on('connection', (socket) => {
   console.log('client connected:', socket.id);

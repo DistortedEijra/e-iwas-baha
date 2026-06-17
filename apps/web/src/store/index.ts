@@ -18,6 +18,7 @@ interface AppState {
   evacCenters: EvacCenter[];
   /** null = auto-nearest; a number = route only to that center */
   selectedCenterId: number | null;
+  floodZones: import('../types.ts').RouteFeature[];
 
   setPosition: (p: LatLng) => void;
   /** Called by map click/drag — locks out GPS overrides. */
@@ -35,6 +36,7 @@ interface AppState {
   applySegmentUpdate: (update: SegmentUpdate) => void;
   setEvacCenters: (centers: EvacCenter[]) => void;
   setSelectedCenterId: (id: number | null) => void;
+  setFloodZones: (zones: import('../types.ts').RouteFeature[]) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -52,6 +54,7 @@ export const useAppStore = create<AppState>()(
       floodUpdates: new Map(),
       evacCenters: [],
       selectedCenterId: null,
+      floodZones: [],
 
       setPosition: (p) => set({ position: p, positionError: null }),
       setManualPosition: (p) => set({ position: p, positionError: null, isManualPosition: true }),
@@ -82,6 +85,7 @@ export const useAppStore = create<AppState>()(
 
       setEvacCenters: (centers) => set({ evacCenters: centers }),
       setSelectedCenterId: (id) => set({ selectedCenterId: id, rerouteAt: Date.now() }),
+      setFloodZones: (zones) => set({ floodZones: zones }),
     }),
     {
       name: 'eiwas-baha',

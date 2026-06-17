@@ -7,6 +7,7 @@ import { useGeolocation } from './hooks/useGeolocation.ts';
 import { useRoute } from './hooks/useRoute.ts';
 import { useRealtime } from './hooks/useRealtime.ts';
 import { useOffline } from './hooks/useOffline.ts';
+import { useFloodZones } from './hooks/useFloodZones.ts';
 import { useAppStore } from './store/index.ts';
 import './App.css';
 
@@ -16,7 +17,8 @@ export default function App() {
 
   useGeolocation();
   useRoute();
-  useRealtime();
+  const refreshFloodZones = useFloodZones();
+  useRealtime(refreshFloodZones);
   useOffline();
 
   useEffect(() => {

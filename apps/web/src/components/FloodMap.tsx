@@ -129,6 +129,88 @@ function RouteLayer({
   );
 }
 
+// Global flood overlay — shows ALL flooded roads from /api/flood-zones
+function GlobalFloodOverlay({ zones }: { zones: RouteFeature[] }) {
+  if (zones.length === 0) return null;
+  return (
+    <>
+      {zones.map((f) => {
+        if (!f.geometry?.coordinates?.length) return null;
+        const positions = f.geometry.coordinates.map(([lng, lat]) => [lat, lng] as [number, number]);
+        const depth  = f.properties.floodDepthM ?? 0;
+        const isDeep = depth >= 0.3;
+        return (
+          <Polyline
+            key={`gz-${f.properties.segmentId}`}
+            positions={positions}
+            pathOptions={{
+              color:    isDeep ? '#dc2626' : '#0ea5e9',
+              weight:   isDeep ? 20 : 16,
+              lineCap:  'round',
+              lineJoin: 'round',
+              className: isDeep ? 'flood-water-layer flood-deep' : 'flood-water-layer flood-shallow',
+            }}
+          >
+            <Popup>
+              <strong>{f.properties.name ?? f.properties.highway ?? 'Road'}</strong><br />
+              Flood depth: <strong>{depth.toFixed(2)} m</strong>
+              {!f.properties.passable && <><br /><em style={{ color: '#dc2626' }}>Road blocked — impassable</em></>}
+            </Popup>
+          </Polyline>
+        );
+      })}
+    </>
+  );
+}
+
+// Warning label at the first segment of each contiguous flooded stretch
+function FloodEntryMarkers({ features, doneSet }: { features: RouteFeature[]; doneSet: Set<number> }) {
+  const markers = useMemo(() => {
+    const result: { key: string; lat: number; lng: number; depth: number }[] = [];
+    for (let i = 0; i < features.length; i++) {
+      if (doneSet.has(i)) continue;
+      const depth = features[i].properties.floodDepthM ?? 0;
+      if (depth <= 0) continue;
+      const prevFlooded =
+        i > 0 && !doneSet.has(i - 1) && (features[i - 1].properties.floodDepthM ?? 0) > 0;
+      if (prevFlooded) continue;
+      const coords = features[i].geometry.coordinates;
+      if (!coords.length) continue;
+      const [lng, lat] = coords[0];
+      result.push({ key: `fe-${i}`, lat, lng, depth });
+    }
+    return result;
+  }, [features, doneSet]);
+
+  return (
+    <>
+      {markers.map((m) => {
+        const isDeep  = m.depth >= 0.3;
+        const bg      = isDeep ? '#dc2626' : '#d97706';
+        const label   = `${(m.depth * 100).toFixed(0)} cm`;
+        const icon    = L.divIcon({
+          className: '',
+          html: `<div class="flood-tag" style="background:${bg}">
+                   <span class="flood-tag-wave">~</span>${label}
+                 </div>`,
+          iconSize:   [68, 26],
+          iconAnchor: [34, 26],
+          popupAnchor: [0, -30],
+        });
+        return (
+          <Marker key={m.key} position={[m.lat, m.lng]} icon={icon}>
+            <Popup>
+              <strong>Flooded section</strong><br />
+              Depth: {m.depth.toFixed(2)} m
+              {m.depth >= 0.3 && <><br /><em>Proceed with extreme caution</em></>}
+            </Popup>
+          </Marker>
+        );
+      })}
+    </>
+  );
+}
+
 // Small rotated ▶ arrow at the midpoint of each upcoming/current segment
 function BearingArrows({ features, doneSet }: { features: RouteFeature[]; doneSet: Set<number> }) {
   const markers = useMemo(() => {
@@ -205,6 +287,7 @@ export function FloodMap({ evacCenters }: Props) {
   const clearManualPosition = useAppStore((s) => s.clearManualPosition);
   const routeResult  = useAppStore((s) => s.routeResult);
   const floodUpdates = useAppStore((s) => s.floodUpdates);
+  const floodZones   = useAppStore((s) => s.floodZones);
 
   const features        = routeResult?.route?.features ?? [];
   const destinationName = routeResult?.evacuationCenter ?? 'Evacuation Center';
@@ -241,9 +324,13 @@ export function FloodMap({ evacCenters }: Props) {
           maxZoom={19}
         />
 
+        {/* Global flood overlay — always visible regardless of current route */}
+        <GlobalFloodOverlay zones={floodZones} />
+
         {features.length > 0 && (
           <>
             <RouteLayer features={features} updatedIds={updatedIds} doneSet={doneSet} currentSet={currentSet} />
+            <FloodEntryMarkers features={features} doneSet={doneSet} />
             <BearingArrows features={features} doneSet={doneSet} />
             <TurnMarkers steps={steps} features={features} />
           </>

@@ -4,7 +4,7 @@ import { useAppStore } from '../store/index.ts';
 import { sendNotification, requestNotificationPermission } from '../lib/notify.ts';
 import type { SegmentUpdate } from '../types.ts';
 
-export function useRealtime() {
+export function useRealtime(onFloodUpdate?: () => void) {
   const applySegmentUpdate = useAppStore((s) => s.applySegmentUpdate);
   const addAlert = useAppStore((s) => s.addAlert);
   const triggerReroute = useAppStore((s) => s.triggerReroute);
@@ -12,7 +12,6 @@ export function useRealtime() {
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
-    // Prompt for notification permission on first connect
     requestNotificationPermission();
 
     const socket = io({ path: '/socket.io' });
@@ -24,7 +23,9 @@ export function useRealtime() {
     socket.on('segment:updated', async (update: SegmentUpdate) => {
       applySegmentUpdate(update);
 
-      // getState() avoids a stale closure on routeResult
+      // Always refresh the global flood overlay
+      onFloodUpdate?.();
+
       const { routeResult } = useAppStore.getState();
       const isOnRoute = routeResult?.route?.features.some(
         (f) => f.properties.segmentId === update.segmentId,
@@ -38,16 +39,12 @@ export function useRealtime() {
       const severity = update.passable ? 'warning' : 'danger';
 
       addAlert(inAppMsg, severity);
-
-      // Native push or Web Notification when app is backgrounded
       await sendNotification('E-Iwas Baha', inAppMsg);
 
       setRerouting(true);
       triggerReroute();
     });
 
-    return () => {
-      socket.disconnect();
-    };
+    return () => { socket.disconnect(); };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 }

@@ -330,6 +330,63 @@
   to { stroke-dashoffset: -22; }
 }
 
+/* ── Flood water layer ───────────────────────────────────────────────── */
+
+.flood-water-layer {
+  stroke-dasharray: 18 10;
+}
+
+.flood-shallow {
+  opacity: 0.35;
+  animation: flood-ripple 2.4s linear infinite, flood-pulse 2s ease-in-out infinite alternate;
+}
+.flood-deep {
+  opacity: 0.42;
+  animation: flood-ripple 1.6s linear infinite, flood-pulse-deep 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes flood-ripple {
+  to { stroke-dashoffset: -28; }
+}
+@keyframes flood-pulse {
+  from { opacity: 0.22; }
+  to   { opacity: 0.46; }
+}
+@keyframes flood-pulse-deep {
+  from { opacity: 0.28; }
+  to   { opacity: 0.58; }
+}
+
+/* ── Flood depth tag ─────────────────────────────────────────────────── */
+
+.flood-tag {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px 3px 7px;
+  border-radius: 999px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.40);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  animation: tag-pop-in 0.25s ease-out;
+}
+.flood-tag-wave {
+  font-size: 14px;
+  line-height: 1;
+  animation: wave-rock 1.2s ease-in-out infinite alternate;
+}
+@keyframes wave-rock {
+  from { transform: translateY(0px); }
+  to   { transform: translateY(-2px); }
+}
+@keyframes tag-pop-in {
+  from { transform: scale(0.75); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
 /* ── Turn direction markers ──────────────────────────────────────────── */
 
 .turn-marker {
