@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Alert, LatLng, RouteResponse, SegmentUpdate } from '../types.ts';
+import type { Alert, EvacCenter, LatLng, RouteResponse, SegmentUpdate } from '../types.ts';
 
 interface AppState {
   position: LatLng | null;
@@ -15,6 +15,9 @@ interface AppState {
   isRerouting: boolean;
   alerts: Alert[];
   floodUpdates: Map<number, SegmentUpdate>;
+  evacCenters: EvacCenter[];
+  /** null = auto-nearest; a number = route only to that center */
+  selectedCenterId: number | null;
 
   setPosition: (p: LatLng) => void;
   /** Called by map click/drag — locks out GPS overrides. */
@@ -30,6 +33,8 @@ interface AppState {
   addAlert: (message: string, type: Alert['type']) => void;
   dismissAlert: (id: string) => void;
   applySegmentUpdate: (update: SegmentUpdate) => void;
+  setEvacCenters: (centers: EvacCenter[]) => void;
+  setSelectedCenterId: (id: number | null) => void;
 }
 
 export const useAppStore = create<AppState>()(
@@ -45,6 +50,8 @@ export const useAppStore = create<AppState>()(
       isRerouting: false,
       alerts: [],
       floodUpdates: new Map(),
+      evacCenters: [],
+      selectedCenterId: null,
 
       setPosition: (p) => set({ position: p, positionError: null }),
       setManualPosition: (p) => set({ position: p, positionError: null, isManualPosition: true }),
@@ -72,6 +79,9 @@ export const useAppStore = create<AppState>()(
           next.set(update.segmentId, update);
           return { floodUpdates: next };
         }),
+
+      setEvacCenters: (centers) => set({ evacCenters: centers }),
+      setSelectedCenterId: (id) => set({ selectedCenterId: id, rerouteAt: Date.now() }),
     }),
     {
       name: 'eiwas-baha',

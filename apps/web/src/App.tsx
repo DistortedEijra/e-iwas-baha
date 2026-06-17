@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FloodMap } from './components/FloodMap.tsx';
 import { RoutePanel } from './components/RoutePanel.tsx';
 import { AlertBanner } from './components/AlertBanner.tsx';
@@ -7,11 +7,12 @@ import { useGeolocation } from './hooks/useGeolocation.ts';
 import { useRoute } from './hooks/useRoute.ts';
 import { useRealtime } from './hooks/useRealtime.ts';
 import { useOffline } from './hooks/useOffline.ts';
-import type { EvacCenter } from './types.ts';
+import { useAppStore } from './store/index.ts';
 import './App.css';
 
 export default function App() {
-  const [evacCenters, setEvacCenters] = useState<EvacCenter[]>([]);
+  const evacCenters = useAppStore((s) => s.evacCenters);
+  const setEvacCenters = useAppStore((s) => s.setEvacCenters);
 
   useGeolocation();
   useRoute();
@@ -23,7 +24,7 @@ export default function App() {
       .then((r) => r.json())
       .then(setEvacCenters)
       .catch(console.error);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="app-layout">

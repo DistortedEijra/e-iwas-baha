@@ -5,6 +5,7 @@ export function useRoute() {
   const position = useAppStore((s) => s.position);
   const rerouteAt = useAppStore((s) => s.rerouteAt);
   const isOffline = useAppStore((s) => s.isOffline);
+  const selectedCenterId = useAppStore((s) => s.selectedCenterId);
   const setRouteResult = useAppStore((s) => s.setRouteResult);
   const setRouteLoading = useAppStore((s) => s.setRouteLoading);
   const addAlert = useAppStore((s) => s.addAlert);
@@ -18,7 +19,6 @@ export function useRoute() {
     if (latR === null || lngR === null) return;
 
     if (isOffline) {
-      // Cached routeResult (persisted by Zustand) stays visible; don't spin.
       setRouteLoading(false);
       return;
     }
@@ -28,7 +28,10 @@ export function useRoute() {
 
     timer.current = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/route?lat=${latR}&lng=${lngR}`);
+        const url = selectedCenterId
+          ? `/api/route?lat=${latR}&lng=${lngR}&centerId=${selectedCenterId}`
+          : `/api/route?lat=${latR}&lng=${lngR}`;
+        const res = await fetch(url);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         setRouteResult(data);
@@ -45,5 +48,5 @@ export function useRoute() {
     }, 1500);
 
     return () => clearTimeout(timer.current);
-  }, [latR, lngR, rerouteAt, isOffline]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [latR, lngR, rerouteAt, isOffline, selectedCenterId]); // eslint-disable-line react-hooks/exhaustive-deps
 }

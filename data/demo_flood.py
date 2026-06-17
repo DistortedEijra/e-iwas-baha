@@ -65,6 +65,10 @@ def clear_segment(seg_id):
     return status
 
 
+def ok_str(status):
+    return "OK" if status == 200 else f"HTTP {status}"
+
+
 def seg_label(f):
     p = f["properties"]
     return p.get("name") or p.get("highway") or f"#{p['segmentId']}"
@@ -111,8 +115,7 @@ def run_demo():
     for sid in to_flood:
         status = flood_segment(sid, flood_depth)
         road   = labels[seg_ids.index(sid)]
-        ok     = "✓" if status == 200 else f"HTTP {status}"
-        print(f"    {ok}  segment {sid}  ({road})")
+        print(f"    {ok_str(status)}  segment {sid}  ({road})")
 
     print("\n  Waiting 2 s for socket.io broadcast + auto-reroute on the web app…")
     time.sleep(2)
@@ -143,10 +146,10 @@ def run_demo():
         print()
 
         if detoured:
-            print("  ✓ ROUTE CHANGED — the app successfully avoided all flooded segments")
+            print("  [OK] ROUTE CHANGED -- the app successfully avoided all flooded segments")
         else:
             still = flooded_in_new
-            print(f"  ~ PARTIAL detour — {len(still)} flooded segment(s) still on route")
+            print(f"  [~] PARTIAL detour -- {len(still)} flooded segment(s) still on route")
             print(f"    (they may be the only link; router keeps passable=true segments)")
     else:
         print("  All evacuation routes are blocked — no safe path found.")
@@ -177,8 +180,7 @@ def run_clear():
     print(f"  Found {len(active)} flooded segment(s)")
     for seg in active:
         status = clear_segment(seg["id"])
-        ok     = "✓" if status == 200 else f"HTTP {status}"
-        print(f"    {ok}  segment {seg['id']}  ({seg.get('name') or seg.get('highway') or '?'})")
+        print(f"    {ok_str(status)}  segment {seg['id']}  ({seg.get('name') or seg.get('highway') or '?'})")
     print("Done — all segments reset to passable, flood_depth_m = 0.")
 
 

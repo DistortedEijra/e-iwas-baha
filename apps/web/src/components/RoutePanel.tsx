@@ -4,13 +4,21 @@ import { DirectionSteps } from './DirectionSteps.tsx';
 import { computeEtaMin } from '../lib/directions.ts';
 
 export function RoutePanel() {
-  const position      = useAppStore((s) => s.position);
-  const positionError = useAppStore((s) => s.positionError);
-  const routeResult   = useAppStore((s) => s.routeResult);
-  const routeLoading  = useAppStore((s) => s.routeLoading);
-  const isOffline     = useAppStore((s) => s.isOffline);
-  const isRerouting   = useAppStore((s) => s.isRerouting);
-  const triggerReroute = useAppStore((s) => s.triggerReroute);
+  const position            = useAppStore((s) => s.position);
+  const positionError       = useAppStore((s) => s.positionError);
+  const routeResult         = useAppStore((s) => s.routeResult);
+  const routeLoading        = useAppStore((s) => s.routeLoading);
+  const isOffline           = useAppStore((s) => s.isOffline);
+  const isRerouting         = useAppStore((s) => s.isRerouting);
+  const triggerReroute      = useAppStore((s) => s.triggerReroute);
+  const evacCenters         = useAppStore((s) => s.evacCenters);
+  const selectedCenterId    = useAppStore((s) => s.selectedCenterId);
+  const setSelectedCenterId = useAppStore((s) => s.setSelectedCenterId);
+
+  const activeCenters = useMemo(
+    () => evacCenters.filter((c) => c.active),
+    [evacCenters],
+  );
 
   const features = routeResult?.route?.features ?? [];
 
@@ -33,7 +41,6 @@ export function RoutePanel() {
         </div>
       )}
 
-      {/* Rerouting banner */}
       {isRerouting && routeLoading && (
         <div className="rerouting-banner">
           <span className="spinner" />
@@ -118,7 +125,6 @@ export function RoutePanel() {
             </div>
           )}
 
-          {/* Turn-by-turn directions */}
           {routeResult.reachable && features.length > 0 && (
             <DirectionSteps
               features={features}
@@ -127,6 +133,30 @@ export function RoutePanel() {
             />
           )}
         </>
+      )}
+
+      {/* Evacuation site picker */}
+      {activeCenters.length > 1 && (
+        <div className="center-picker">
+          <p className="center-picker-label">Evacuation site</p>
+          <div className="center-picker-list">
+            <button
+              className={`center-btn${selectedCenterId === null ? ' center-btn-active' : ''}`}
+              onClick={() => setSelectedCenterId(null)}
+            >
+              Nearest (auto)
+            </button>
+            {activeCenters.map((c) => (
+              <button
+                key={c.id}
+                className={`center-btn${selectedCenterId === c.id ? ' center-btn-active' : ''}`}
+                onClick={() => setSelectedCenterId(c.id)}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {position && !isOffline && (

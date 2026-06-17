@@ -16,6 +16,7 @@ export function routeRouter(pool: Pool, graph: Graph) {
   router.get('/', async (req, res) => {
     const lat = parseFloat(req.query['lat'] as string);
     const lng = parseFloat(req.query['lng'] as string);
+    const centerId = req.query['centerId'] ? parseInt(req.query['centerId'] as string, 10) : null;
 
     if (isNaN(lat) || isNaN(lng)) {
       return res.status(400).json({ error: 'lat and lng query params are required' });
@@ -32,8 +33,12 @@ export function routeRouter(pool: Pool, graph: Graph) {
       lat: string;
       lng: string;
     }>(
-      `SELECT id, name, ST_Y(geom) AS lat, ST_X(geom) AS lng
-       FROM evac_centers WHERE active = true`,
+      centerId
+        ? `SELECT id, name, ST_Y(geom) AS lat, ST_X(geom) AS lng
+           FROM evac_centers WHERE active = true AND id = $1`
+        : `SELECT id, name, ST_Y(geom) AS lat, ST_X(geom) AS lng
+           FROM evac_centers WHERE active = true`,
+      centerId ? [centerId] : [],
     );
 
     if (centers.length === 0) {
