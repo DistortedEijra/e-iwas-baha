@@ -61,10 +61,10 @@ function geoJsonBearing(c1: [number, number], c2: [number, number]): number {
   return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
 }
 
-function segColor(depth: number | null, isDone: boolean, isFlash: boolean): string {
+function segColor(depth: number | null, isDone: boolean, isFlash: boolean, isCurrent: boolean): string {
   if (isFlash) return '#7c3aed';
   if (isDone) return '#9ca3af';
-  if (!depth || depth <= 0) return '#3b82f6';
+  if (!depth || depth <= 0) return isCurrent ? '#1d4ed8' : '#93c5fd';
   if (depth < 0.3) return '#f59e0b';
   return '#ef4444';
 }
@@ -81,8 +81,8 @@ function MapClickHandler({ onPlace }: { onPlace: (lat: number, lng: number) => v
 function FlyToUser({ lat, lng }: { lat: number; lng: number }) {
   const map = useMap();
   useEffect(() => {
-    map.flyTo([lat, lng], 15, { duration: 1.2 });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 15), { duration: 0.8 });
+  }, [lat, lng]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
@@ -108,7 +108,7 @@ function RouteLayer({
             key={f.properties.segmentId}
             positions={positions}
             pathOptions={{
-              color:     segColor(f.properties.floodDepthM, isDone, isFlash),
+              color:     segColor(f.properties.floodDepthM, isDone, isFlash, isCurrent),
               weight:    isCurrent ? 10 : 6,
               opacity:   isDone ? 0.35 : 0.9,
               lineCap:   'round',
@@ -142,7 +142,7 @@ function BearingArrows({ features, doneSet }: { features: RouteFeature[]; doneSe
       const icon = L.divIcon({
         className: '',
         html: `<div class="bearing-arrow" style="transform:rotate(${b}deg)">▶</div>`,
-        iconSize: [16, 16], iconAnchor: [8, 8],
+        iconSize: [20, 20], iconAnchor: [10, 10],
       });
       return [{ key: `arr-${f.properties.segmentId}`, lat, lng, icon }];
     });
@@ -161,7 +161,7 @@ function BearingArrows({ features, doneSet }: { features: RouteFeature[]; doneSe
 function TurnMarkers({ steps, features }: { steps: DirectionStep[]; features: RouteFeature[] }) {
   const items = useMemo(() => {
     return steps
-      .filter((s) => s.type !== 'depart' && s.segmentIndices.length > 0)
+      .filter((s) => (s.type === 'turn-left' || s.type === 'turn-right') && s.segmentIndices.length > 0)
       .map((s, i) => {
         const segIdx = s.segmentIndices[0];
         const f = features[segIdx];

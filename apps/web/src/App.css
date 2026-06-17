@@ -349,14 +349,16 @@
 /* ── Bearing arrows along segments ──────────────────────────────────── */
 
 .bearing-arrow {
-  width: 16px;
-  height: 16px;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 9px;
+  width: 20px;
+  height: 20px;
+  color: #fff;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  text-shadow: 0 0 4px rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.30);
+  border-radius: 50%;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
   pointer-events: none;
 }
 
@@ -407,9 +409,10 @@
   font-size: 15px;
   font-weight: 700;
   line-height: 1.3;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .hud-flood-warn {
